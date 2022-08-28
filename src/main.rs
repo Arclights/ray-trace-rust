@@ -25,14 +25,14 @@ impl Color {
 
 fn hit_sphere(center: &Point3, radius: f32, r: &Ray) -> f32 {
     let oc = r.orig - center;
-    let a = r.dir.dot(&r.dir);
-    let b = 2.0 * oc.dot(&r.dir);
-    let c = oc.dot(&oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
+    let a = r.dir.length_squared();
+    let half_b = oc.dot(&r.dir);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = half_b * half_b - a * c;
     if discriminant < 0.0 {
         -1.0
     } else {
-        (-b - discriminant.sqrt()) / (2.0 * a)
+        (-half_b - discriminant.sqrt()) / a
     }
 }
 
