@@ -39,8 +39,8 @@ fn hit_sphere(center: &Point3, radius: f32, r: &Ray) -> f32 {
 fn ray_color(ray: Ray) -> Color {
     let t = hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, &ray);
     if t > 0.0 {
-        let N = (ray.at(t) - Point3::new(0.0, 0.0, -1.0)).unit_vector();
-        return Color::new(N.x() + 1.0, N.y() + 1.0, N.z() + 1.0) * 0.5;
+        let n = (ray.at(t) - Point3::new(0.0, 0.0, -1.0)).unit_vector();
+        return Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0) * 0.5;
     }
     let unit_direction = ray.dir.unit_vector();
     let t = 0.5 * (unit_direction.y() + 1.0);
