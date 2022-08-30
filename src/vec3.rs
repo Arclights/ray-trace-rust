@@ -2,6 +2,7 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
 
+#[derive(Clone)]
 pub struct Vec3 {
     e: [f32; 3],
 }
@@ -47,9 +48,9 @@ impl Vec3 {
         )
     }
 
-    pub fn unit_vector(self) -> Vec3 {
+    pub fn unit_vector(&self) -> Vec3 {
         let length = self.length();
-        &self / length
+        self / length
     }
 }
 
@@ -161,6 +162,13 @@ impl Mul<f32> for &Vec3 {
     }
 }
 
+impl Div<f32> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        &self / rhs
+    }
+}
 impl Div<f32> for &Vec3 {
     type Output = Vec3;
 

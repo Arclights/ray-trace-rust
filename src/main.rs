@@ -1,7 +1,13 @@
 mod vec3;
 mod ray;
+mod hittable;
+mod sphere;
+mod hittable_list;
 
+use crate::hittable::{HitRecord, Hittable};
+use crate::hittable_list::HittableList;
 use crate::ray::Ray;
+use crate::sphere::Sphere;
 use crate::vec3::Vec3;
 
 // Image
@@ -23,31 +29,28 @@ impl Color {
     }
 }
 
-fn hit_sphere(center: &Point3, radius: f32, r: &Ray) -> f32 {
-    let oc = r.orig - center;
-    let a = r.dir.length_squared();
-    let half_b = oc.dot(&r.dir);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = half_b * half_b - a * c;
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (-half_b - discriminant.sqrt()) / a
+fn ray_color(ray: &Ray, world: &dyn Hittable) -> Color {
+    let mut rec: HitRecord = HitRecord {
+        p: Vec3::origin(),
+        normal: Vec3::origin(),
+        t: 0.0,
+        front_face: false,
+    };
+    if world.hit(ray, 0.0, f32::INFINITY, &mut rec) {
+        return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
     }
-}
 
-fn ray_color(ray: Ray) -> Color {
-    let t = hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, &ray);
-    if t > 0.0 {
-        let n = (ray.at(t) - Point3::new(0.0, 0.0, -1.0)).unit_vector();
-        return Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0) * 0.5;
-    }
     let unit_direction = ray.dir.unit_vector();
     let t = 0.5 * (unit_direction.y() + 1.0);
     Color::new(1.0, 1.0, 1.0) * (1.0 - t) + Color::new(0.5, 0.7, 1.0) * t
 }
 
 fn main() {
+    // World
+    let world = HittableList::new()
+        .add(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)))
+        .add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
+
     // Camera
     let origin: Point3 = Point3::origin();
     let horizontal: Vec3 = Vec3::new(VIEWPORT_WIDTH, 0.0, 0.0);
@@ -66,7 +69,7 @@ fn main() {
 
             let r = Ray { orig: &origin, dir: &lower_left_corner + &horizontal * u + &vertical * v - &origin };
 
-            let pixel_color = ray_color(r);
+            let pixel_color = ray_color(&r, &world);
             pixel_color.write_color()
         }
     }
