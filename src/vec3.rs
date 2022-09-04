@@ -1,6 +1,8 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
+use crate::random_float;
+use crate::utils::random_float_range;
 
 #[derive(Clone)]
 pub struct Vec3 {
@@ -51,6 +53,29 @@ impl Vec3 {
     pub fn unit_vector(&self) -> Vec3 {
         let length = self.length();
         self / length
+    }
+
+    pub fn random() -> Vec3 {
+        Vec3::new(random_float(), random_float(), random_float())
+    }
+
+    pub fn random_range(min: f32, max: f32) -> Vec3 {
+        Vec3::new(random_float_range(min, max), random_float_range(min, max), random_float_range(min, max))
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Vec3::random_range(-1.0, 1.0);
+            if p.length_squared() >= 1.0 {
+                continue;
+            } else {
+                return p;
+            }
+        }
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        Vec3::random_in_unit_sphere().unit_vector()
     }
 }
 
@@ -169,6 +194,7 @@ impl Div<f32> for Vec3 {
         &self / rhs
     }
 }
+
 impl Div<f32> for &Vec3 {
     type Output = Vec3;
 

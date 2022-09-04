@@ -20,19 +20,27 @@ use crate::vec3::Vec3;
 const ASPECT_RATIO: f32 = 16.0 / 9.0;
 const IMAGE_WIDTH: i32 = 400;
 const IMAGE_HEIGHT: i32 = (IMAGE_WIDTH as f32 / ASPECT_RATIO) as i32;
-const SAMPLES_PER_PIXEL: i32 = 20;
+const SAMPLES_PER_PIXEL: i32 = 100;
+const MAX_DEPTH: i8 = 50;
 
 type Point3 = Vec3;
 
-fn ray_color(ray: &Ray, world: &dyn Hittable) -> Color {
+fn ray_color(ray: &Ray, world: &dyn Hittable, depth: i8) -> Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if depth <= 0 {
+        return Color::origin();
+    }
+
     let mut rec: HitRecord = HitRecord {
         p: Vec3::origin(),
         normal: Vec3::origin(),
         t: 0.0,
         front_face: false,
     };
-    if world.hit(ray, 0.0, f32::INFINITY, &mut rec) {
-        return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
+    if world.hit(ray, 0.001, f32::INFINITY, &mut rec) {
+        let target = &rec.p + rec.normal + Vec3::random_unit_vector();
+        let bounce_ray = Ray::new(&rec.p, target - &rec.p);
+        return ray_color(&bounce_ray, world, depth - 1) * 0.5;
     }
 
     let unit_direction = ray.dir.unit_vector();
@@ -61,7 +69,7 @@ fn main() {
 
                 let r = camera.get_ray(u, v);
 
-                pixel_color += ray_color(&r, &world);
+                pixel_color += ray_color(&r, &world, MAX_DEPTH);
             }
             pixel_color.write_color(SAMPLES_PER_PIXEL)
         }
