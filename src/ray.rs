@@ -1,16 +1,16 @@
 use crate::{Point3, Vec3};
 
-pub struct Ray<'a> {
-    pub orig: &'a Point3,
+pub struct Ray {
+    pub orig: Point3,
     pub dir: Vec3,
 }
 
-impl Ray<'_> {
-    pub fn new(orig: &Point3, dir: Vec3) -> Ray {
+impl Ray {
+    pub fn new(orig: Point3, dir: Vec3) -> Ray {
         Ray { orig, dir }
     }
 
     pub fn at(&self, t: f32) -> Point3 {
-        self.orig + &self.dir * t
+        &self.orig + &self.dir * t
     }
 }

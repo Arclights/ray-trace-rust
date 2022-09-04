@@ -1,12 +1,12 @@
 use crate::hittable::{HitRecord, Hittable};
-use crate::{Ray, Vec3};
+use crate::{Color, Lambertian, Ray, Vec3};
 
-pub struct HittableList {
-    objects: Vec<Box<dyn Hittable>>,
+pub struct HittableList<H: Hittable> {
+    objects: Vec<Box<H>>,
 }
 
-impl HittableList {
-    pub fn new() -> HittableList {
+impl<H: Hittable> HittableList<H> {
+    pub fn new() -> HittableList<H> {
         HittableList { objects: vec![] }
     }
 
@@ -14,17 +14,19 @@ impl HittableList {
         self.objects.clear()
     }
 
-    pub fn add(mut self, object: Box<dyn Hittable>) -> HittableList {
+    pub fn add(mut self, object: Box<H>) -> HittableList<H> {
         self.objects.push(object);
         self
     }
 }
 
-impl Hittable for HittableList {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32, rec: &mut HitRecord) -> bool {
-        let mut tmp_rec: HitRecord = HitRecord {
+impl<H: Hittable> Hittable for HittableList<H> {
+    fn hit<'a>(self: &'a Self, ray: &Ray, t_min: f32, t_max: f32, rec: &mut HitRecord<'a>) -> bool {
+        let m = Box::new(Lambertian::new(Color::new(0.0, 0.0, 0.0)));
+        let mut tmp_rec: HitRecord<'a> = HitRecord {
             p: Vec3::origin(),
             normal: Vec3::origin(),
+            material: rec.material,
             t: 0.0,
             front_face: false,
         };

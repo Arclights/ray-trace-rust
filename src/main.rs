@@ -6,11 +6,13 @@ mod hittable_list;
 mod utils;
 mod camera;
 mod color;
+mod material;
 
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hittable::{HitRecord, Hittable};
 use crate::hittable_list::HittableList;
+use crate::material::{Lambertian, Metal};
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::utils::random_float;
@@ -25,7 +27,7 @@ const MAX_DEPTH: i8 = 50;
 
 type Point3 = Vec3;
 
-fn ray_color(ray: &Ray, world: &dyn Hittable, depth: i8) -> Color {
+fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: i8) -> Color {
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if depth <= 0 {
         return Color::origin();
@@ -34,13 +36,16 @@ fn ray_color(ray: &Ray, world: &dyn Hittable, depth: i8) -> Color {
     let mut rec: HitRecord = HitRecord {
         p: Vec3::origin(),
         normal: Vec3::origin(),
+        material: &Lambertian::new(Color::new(0.0, 0.0, 0.0)),
         t: 0.0,
         front_face: false,
     };
     if world.hit(ray, 0.001, f32::INFINITY, &mut rec) {
-        let target = &rec.p + rec.normal + Vec3::random_unit_vector();
-        let bounce_ray = Ray::new(&rec.p, target - &rec.p);
-        return ray_color(&bounce_ray, world, depth - 1) * 0.5;
+        let (scattered, attenuation, was_scattered) = rec.material.scatter(ray, &rec);
+        if was_scattered {
+            return ray_color(&scattered, world, depth - 1) * attenuation;
+        }
+        return Color::origin();
     }
 
     let unit_direction = ray.dir.unit_vector();
@@ -50,8 +55,26 @@ fn ray_color(ray: &Ray, world: &dyn Hittable, depth: i8) -> Color {
 
 fn main() {
     let world = HittableList::new()
-        .add(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)))
-        .add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
+        .add(Box::new(Sphere::new(
+            Point3::new(0.0, -100.5, -1.0),
+            100.0,
+            Box::new(Lambertian::new(Color::new(0.8, 0.8, 0.0))),
+        )))
+        .add(Box::new(Sphere::new(
+            Point3::new(0.0, 0.0, -1.0),
+            0.5,
+            Box::new(Lambertian::new(Color::new(0.7, 0.3, 0.3))),
+        )))
+        .add(Box::new(Sphere::new(
+            Point3::new(-1.0, 0.0, -1.0),
+            0.5,
+            Box::new(Metal::new(Color::new(0.8, 0.8, 0.8))),
+        )))
+        .add(Box::new(Sphere::new(
+            Point3::new(1.0, 0.0, -1.0),
+            0.5,
+            Box::new(Metal::new(Color::new(0.8, 0.6, 0.2))),
+        )));
 
     let camera = Camera::new();
 

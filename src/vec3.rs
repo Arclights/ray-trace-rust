@@ -4,6 +4,8 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
 use crate::random_float;
 use crate::utils::random_float_range;
 
+const S: f32 = 1e-8;
+
 #[derive(Clone)]
 pub struct Vec3 {
     e: [f32; 3],
@@ -76,6 +78,17 @@ impl Vec3 {
 
     pub fn random_unit_vector() -> Vec3 {
         Vec3::random_in_unit_sphere().unit_vector()
+    }
+
+    pub fn near_zero(&self) -> bool {
+        // Return true if the vector is close to zero in all dimensions.
+        self.e.iter()
+            .map(|item| item < &S)
+            .fold(true, |accum, item| accum && item)
+    }
+
+    pub fn reflect(&self, n: &Vec3) -> Vec3 {
+        self - &(n * self.dot(n) * 2.0)
     }
 }
 
