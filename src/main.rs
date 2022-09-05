@@ -12,7 +12,7 @@ use crate::camera::Camera;
 use crate::color::Color;
 use crate::hittable::{HitRecord, Hittable};
 use crate::hittable_list::HittableList;
-use crate::material::{Lambertian, Metal};
+use crate::material::{Dielectric, Lambertian, Metal};
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::utils::random_float;
@@ -63,12 +63,17 @@ fn main() {
         .add(Box::new(Sphere::new(
             Point3::new(0.0, 0.0, -1.0),
             0.5,
-            Box::new(Lambertian::new(Color::new(0.7, 0.3, 0.3))),
+            Box::new(Lambertian::new(Color::new(0.1, 0.2, 0.5))),
         )))
         .add(Box::new(Sphere::new(
             Point3::new(-1.0, 0.0, -1.0),
             0.5,
-            Box::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.3)),
+            Box::new(Dielectric::new(1.5)),
+        )))
+        .add(Box::new(Sphere::new(
+            Point3::new(-1.0, 0.0, -1.0),
+            -0.4,
+            Box::new(Dielectric::new(1.5)),
         )))
         .add(Box::new(Sphere::new(
             Point3::new(1.0, 0.0, -1.0),
