@@ -2,7 +2,7 @@ use crate::hittable::{HitRecord, Hittable};
 use crate::{Ray, Vec3};
 
 pub struct HittableList<H: Hittable> {
-    objects: Vec<Box<H>>,
+    objects: Vec<H>,
 }
 
 impl<H: Hittable> HittableList<H> {
@@ -10,8 +10,8 @@ impl<H: Hittable> HittableList<H> {
         HittableList { objects: vec![] }
     }
 
-    pub fn add(mut self, object: Box<H>) -> HittableList<H> {
-        self.objects.push(object);
+    pub fn add(mut self, hittable: H) -> HittableList<H> {
+        self.objects.push(hittable);
         self
     }
 }
