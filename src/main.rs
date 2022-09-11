@@ -55,37 +55,7 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: i8) -> Color {
 }
 
 fn main() {
-    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
-    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
-    let material_left = Dielectric::new(1.5);
-    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 0.0);
-
-    let world = HittableList::new()
-        .add(Box::new(Sphere::new(
-            Point3::new(0.0, -100.5, -1.0),
-            100.0,
-            Box::new(material_ground),
-        )))
-        .add(Box::new(Sphere::new(
-            Point3::new(0.0, 0.0, -1.0),
-            0.5,
-            Box::new(material_center),
-        )))
-        .add(Box::new(Sphere::new(
-            Point3::new(-1.0, 0.0, -1.0),
-            0.5,
-            Box::new(material_left),
-        )))
-        .add(Box::new(Sphere::new(
-            Point3::new(-1.0, 0.0, -1.0),
-            -0.4,
-            Box::new(Dielectric::new(1.5)),
-        )))
-        .add(Box::new(Sphere::new(
-            Point3::new(1.0, 0.0, -1.0),
-            0.5,
-            Box::new(material_right),
-        )));
+    let world = setup_sample_scene();
 
     let camera = setup_camera();
 
@@ -134,4 +104,38 @@ fn setup_camera() -> Camera {
         aperture,
         dist_to_focus,
     )
+}
+
+fn setup_sample_scene() -> HittableList<Sphere<'static>> {
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
+    let material_left = Dielectric::new(1.5);
+    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 0.0);
+
+    HittableList::new()
+        .add(Box::new(Sphere::new(
+            Point3::new(0.0, -100.5, -1.0),
+            100.0,
+            Box::new(material_ground),
+        )))
+        .add(Box::new(Sphere::new(
+            Point3::new(0.0, 0.0, -1.0),
+            0.5,
+            Box::new(material_center),
+        )))
+        .add(Box::new(Sphere::new(
+            Point3::new(-1.0, 0.0, -1.0),
+            0.5,
+            Box::new(material_left),
+        )))
+        .add(Box::new(Sphere::new(
+            Point3::new(-1.0, 0.0, -1.0),
+            -0.4,
+            Box::new(Dielectric::new(1.5)),
+        )))
+        .add(Box::new(Sphere::new(
+            Point3::new(1.0, 0.0, -1.0),
+            0.5,
+            Box::new(material_right),
+        )))
 }
