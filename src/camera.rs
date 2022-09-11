@@ -1,4 +1,5 @@
 use crate::{Point3, Ray, Vec3};
+use crate::utils::degrees_to_radians;
 
 pub struct Camera {
     origin: Point3,
@@ -8,27 +9,36 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Camera {
-        let aspect_ratio: f32 = 16.0 / 9.0;
-        let viewport_height: f32 = 2.0;
-        let viewport_width: f32 = aspect_ratio * viewport_height;
-        let focal_length: f32 = 1.0;
+    pub fn new(
+        look_from: Point3,
+        look_at: Point3,
+        view_up: Vec3,
+        vertical_fov: f32,
+        aspect_ratio: f32,
+    ) -> Camera {
+        let theta = degrees_to_radians(vertical_fov);
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h;
+        let viewport_width = aspect_ratio * viewport_height;
 
-        let origin = Point3::origin();
-        let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-        let vertical = Vec3::new(0.0, viewport_height, 0.0);
+        let w = (&look_from - &look_at).unit_vector();
+        let u = view_up.cross(&w).unit_vector();
+        let v = w.cross(&u);
+
+        let horizontal = &u * viewport_width;
+        let vertical = &v * viewport_height;
         Camera {
-            origin:origin.clone(),
-            horizontal:horizontal.clone(),
-            vertical:vertical.clone(),
-            lower_left_corner: origin - &horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length),
+            lower_left_corner: &look_from - &horizontal / 2.0 - &vertical / 2.0 - &w,
+            origin: look_from,
+            horizontal,
+            vertical,
         }
     }
 
-    pub fn get_ray(&self, u: f32, v: f32) -> Ray {
-        Ray {
-            orig: self.origin.clone(),
-            dir: &self.lower_left_corner + &self.horizontal * u + &self.vertical * v - &self.origin,
-        }
+    pub fn get_ray(&self, s: f32, t: f32) -> Ray {
+        Ray::new(
+            self.origin.clone(),
+            &self.lower_left_corner + &self.horizontal * s + &self.vertical * t - &self.origin,
+        )
     }
 }

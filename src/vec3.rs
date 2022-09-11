@@ -44,11 +44,11 @@ impl Vec3 {
         self.e[0] * v.e[0] + self.e[1] * v.e[1] + self.e[2] * v.e[2]
     }
 
-    pub fn cross(v: Vec3, u: Vec3) -> Vec3 {
+    pub fn cross(&self, u: &Vec3) -> Vec3 {
         Vec3::new(
-            u.e[1] * v.e[2] - u.e[2] * v.e[1],
-            u.e[2] * v.e[0] - u.e[0] * v.e[2],
-            u.e[0] * v.e[1] - u.e[1] * v.e[0],
+            u.e[1] * self.e[2] - u.e[2] * self.e[1],
+            u.e[2] * self.e[0] - u.e[0] * self.e[2],
+            u.e[0] * self.e[1] - u.e[1] * self.e[0],
         )
     }
 
@@ -171,7 +171,7 @@ impl Sub for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        &self - &rhs
+        self - &rhs
     }
 }
 
@@ -179,7 +179,15 @@ impl Sub<&Vec3> for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: &Vec3) -> Self::Output {
-        &self - &rhs
+        &self - rhs
+    }
+}
+
+impl Sub<Vec3> for &Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: Vec3) -> Self::Output {
+        self - &rhs
     }
 }
 

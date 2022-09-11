@@ -8,6 +8,7 @@ mod camera;
 mod color;
 mod material;
 
+use std::time::Instant;
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hittable::{HitRecord, Hittable};
@@ -54,21 +55,26 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: i8) -> Color {
 }
 
 fn main() {
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
+    let material_left = Dielectric::new(1.5);
+    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 0.0);
+
     let world = HittableList::new()
         .add(Box::new(Sphere::new(
             Point3::new(0.0, -100.5, -1.0),
             100.0,
-            Box::new(Lambertian::new(Color::new(0.8, 0.8, 0.0))),
+            Box::new(material_ground),
         )))
         .add(Box::new(Sphere::new(
             Point3::new(0.0, 0.0, -1.0),
             0.5,
-            Box::new(Lambertian::new(Color::new(0.1, 0.2, 0.5))),
+            Box::new(material_center),
         )))
         .add(Box::new(Sphere::new(
             Point3::new(-1.0, 0.0, -1.0),
             0.5,
-            Box::new(Dielectric::new(1.5)),
+            Box::new(material_left),
         )))
         .add(Box::new(Sphere::new(
             Point3::new(-1.0, 0.0, -1.0),
@@ -78,14 +84,22 @@ fn main() {
         .add(Box::new(Sphere::new(
             Point3::new(1.0, 0.0, -1.0),
             0.5,
-            Box::new(Metal::new(Color::new(0.8, 0.6, 0.2), 1.0)),
+            Box::new(material_right),
         )));
 
-    let camera = Camera::new();
+    let camera = Camera::new(
+        Point3::new(-2.0, 2.0, 1.0),
+        Point3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        20.0,
+        ASPECT_RATIO,
+    );
 
     println!("P3");
     println!("{} {}", IMAGE_WIDTH, IMAGE_HEIGHT);
     println!("255");
+
+    let start = Instant::now();
 
     for j in (0..=(IMAGE_HEIGHT - 1)).rev() {
         eprint!("\rScanlines remaining: {} ", j);
@@ -102,5 +116,9 @@ fn main() {
             pixel_color.write_color(SAMPLES_PER_PIXEL)
         }
     }
-    eprintln!("\nDone!")
+
+    let elapsed_time = start.elapsed();
+
+    eprintln!("\nDone!");
+    eprintln!("Took {}s", elapsed_time.as_secs())
 }
