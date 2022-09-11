@@ -87,13 +87,7 @@ fn main() {
             Box::new(material_right),
         )));
 
-    let camera = Camera::new(
-        Point3::new(-2.0, 2.0, 1.0),
-        Point3::new(0.0, 0.0, -1.0),
-        Vec3::new(0.0, 1.0, 0.0),
-        20.0,
-        ASPECT_RATIO,
-    );
+    let camera = setup_camera();
 
     println!("P3");
     println!("{} {}", IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -121,4 +115,23 @@ fn main() {
 
     eprintln!("\nDone!");
     eprintln!("Took {}s", elapsed_time.as_secs())
+}
+
+fn setup_camera() -> Camera {
+    let look_from = Point3::new(-3.0, 3.0, 2.0);
+    // let look_from = Point3::new(-2.0, 2.0, 1.0);
+    let look_at = Point3::new(0.0, 0.0, -1.0);
+    let vertical_up = Vec3::new(0.0, 1.0, 0.0);
+    let dist_to_focus = (&look_from - &look_at).length();
+    let aperture = 2.0;
+
+    Camera::new(
+        look_from,
+        look_at,
+        vertical_up,
+        20.0,
+        ASPECT_RATIO,
+        aperture,
+        dist_to_focus,
+    )
 }

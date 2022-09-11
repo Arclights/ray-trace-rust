@@ -97,6 +97,21 @@ impl Vec3 {
         let r_out_parallel = n * -(1.0 - r_out_perp.length_squared()).abs().sqrt();
         r_out_perp + r_out_parallel
     }
+
+    pub fn random_in_unit_disc() -> Vec3 {
+        loop {
+            let p = Vec3::new(
+                random_float_range(-1.0, 1.0),
+                random_float_range(-1.0, 1.0),
+                0.0,
+            );
+            if p.length_squared() >= 1.0 {
+                continue;
+            } else {
+                return p;
+            }
+        }
+    }
 }
 
 impl Neg for Vec3 {
@@ -163,6 +178,14 @@ impl Add<Vec3> for &Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Vec3) -> Self::Output {
+        self + &rhs
+    }
+}
+
+impl Add<&Vec3> for &Vec3 {
+    type Output = Vec3;
+
+    fn add(self, rhs: &Vec3) -> Self::Output {
         Vec3::new(self.e[0] + rhs.e[0], self.e[1] + rhs.e[1], self.e[2] + rhs.e[2])
     }
 }
