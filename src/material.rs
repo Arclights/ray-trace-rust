@@ -17,7 +17,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> (Ray, Color, bool) {
+    fn scatter(&self, _ray_in: &Ray, rec: &HitRecord) -> (Ray, Color, bool) {
         let scatter_direction = get_scatter_direction(rec);
         (Ray::new(rec.p.clone(), scatter_direction), self.albedo.clone(), true)
     }

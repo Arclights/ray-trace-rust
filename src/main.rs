@@ -69,7 +69,7 @@ fn main() {
         eprint!("\rScanlines remaining: {} ", j);
         for i in 0..IMAGE_WIDTH {
             let mut pixel_color = Color::origin();
-            for s in 0..SAMPLES_PER_PIXEL {
+            for _s in 0..SAMPLES_PER_PIXEL {
                 let u = ((i as f32) + random_float()) / (IMAGE_WIDTH - 1) as f32;
                 let v = ((j as f32) + random_float()) / (IMAGE_HEIGHT - 1) as f32;
 
