@@ -1,5 +1,6 @@
-use crate::hittable::{HitRecord, Hittable};
 use crate::{Ray, Vec3};
+use crate::hittable::{HitRecord, Hittable};
+use crate::material::DEFAULT_LAMBERTIAN;
 
 pub struct HittableList<H: Hittable> {
     objects: Vec<H>,
@@ -17,25 +18,25 @@ impl<H: Hittable> HittableList<H> {
 }
 
 impl<H: Hittable> Hittable for HittableList<H> {
-    fn hit<'a>(self: &'a Self, ray: &Ray, t_min: f32, t_max: f32, rec: &mut HitRecord<'a>) -> bool {
-        let mut tmp_rec: HitRecord<'a> = HitRecord {
+    fn hit<'a>(self: &'a Self, ray: &Ray, t_min: f32, t_max: f32) -> HitRecord {
+        let mut closest_so_far = t_max;
+        let mut tmp_rec = HitRecord {
             p: Vec3::origin(),
             normal: Vec3::origin(),
-            material: rec.material,
+            material: &DEFAULT_LAMBERTIAN,
             t: 0.0,
             front_face: false,
+            is_hit: false,
         };
-        let mut hit_anything = false;
-        let mut closest_so_far = t_max;
 
         for object in self.objects.iter() {
-            if object.hit(ray, t_min, closest_so_far, &mut tmp_rec) {
-                hit_anything = true;
-                closest_so_far = tmp_rec.t;
-                *rec = tmp_rec.clone();
+            let rec = object.hit(ray, t_min, closest_so_far);
+            if rec.is_hit {
+                closest_so_far = rec.t;
+                tmp_rec = rec;
             }
         }
 
-        hit_anything
+        return tmp_rec;
     }
 }

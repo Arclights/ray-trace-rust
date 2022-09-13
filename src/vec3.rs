@@ -1,6 +1,7 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
+
 use crate::random_float;
 use crate::utils::random_float_range;
 
@@ -28,7 +29,7 @@ impl Vec3 {
         Vec3 { e: [0.0, 0.0, 0.0] }
     }
 
-    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
+    pub const fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 { e: [x, y, z] }
     }
 

@@ -1,5 +1,6 @@
 use std::borrow::Borrow;
 use std::ops::Neg;
+
 use crate::{Color, HitRecord, random_float, Ray, Vec3};
 
 pub trait Material {
@@ -11,10 +12,12 @@ pub struct Lambertian {
 }
 
 impl Lambertian {
-    pub fn new(color: Color) -> Lambertian {
+    pub const fn new(color: Color) -> Lambertian {
         Lambertian { albedo: color }
     }
 }
+
+pub const DEFAULT_LAMBERTIAN: Lambertian = Lambertian::new(Color::new(0.0, 0.0, 0.0));
 
 impl Material for Lambertian {
     fn scatter(&self, _ray_in: &Ray, rec: &HitRecord) -> (Ray, Color, bool) {

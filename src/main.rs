@@ -1,14 +1,5 @@
-mod vec3;
-mod ray;
-mod hittable;
-mod sphere;
-mod hittable_list;
-mod utils;
-mod camera;
-mod color;
-mod material;
-
 use std::time::Instant;
+
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hittable::{HitRecord, Hittable};
@@ -18,6 +9,16 @@ use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::utils::random_float;
 use crate::vec3::Vec3;
+
+mod vec3;
+mod ray;
+mod hittable;
+mod sphere;
+mod hittable_list;
+mod utils;
+mod camera;
+mod color;
+mod material;
 
 // Image
 const ASPECT_RATIO: f32 = 16.0 / 9.0;
@@ -34,14 +35,8 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: i8) -> Color {
         return Color::origin();
     }
 
-    let mut rec: HitRecord = HitRecord {
-        p: Vec3::origin(),
-        normal: Vec3::origin(),
-        material: &Lambertian::new(Color::new(0.0, 0.0, 0.0)),
-        t: 0.0,
-        front_face: false,
-    };
-    if world.hit(ray, 0.001, f32::INFINITY, &mut rec) {
+    let rec = world.hit(ray, 0.001, f32::INFINITY);
+    if rec.is_hit {
         let (scattered, attenuation, was_scattered) = rec.material.scatter(ray, &rec);
         if was_scattered {
             return ray_color(&scattered, world, depth - 1) * attenuation;
@@ -88,8 +83,7 @@ fn main() {
 }
 
 fn setup_camera() -> Camera {
-    let look_from = Point3::new(-3.0, 3.0, 2.0);
-    // let look_from = Point3::new(-2.0, 2.0, 1.0);
+    let look_from = Point3::new(3.0, 3.0, 2.0);
     let look_at = Point3::new(0.0, 0.0, -1.0);
     let vertical_up = Vec3::new(0.0, 1.0, 0.0);
     let dist_to_focus = (&look_from - &look_at).length();
